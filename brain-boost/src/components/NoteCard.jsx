@@ -1,7 +1,7 @@
 import React from 'react';
 import { FileText } from 'lucide-react';
 
-const NoteCard = ({ title, subject, date, questions }) => {
+const NoteCard = ({ title, subject, date, questions, filePath }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
       <div className="flex items-start justify-between mb-4">
@@ -16,12 +16,24 @@ const NoteCard = ({ title, subject, date, questions }) => {
         </div>
         <span className="text-xs text-gray-400">{date}</span>
       </div>
-      
-      <div className="flex items-center justify-between">
+
+      <div className="flex items-center justify-between mt-2">
         <span className="text-sm text-gray-600">{questions} questions generated</span>
-        <button className="text-purple-600 hover:text-purple-700 font-medium text-sm hover:underline">
-          Take Quiz →
-        </button>
+        <div className="flex items-center space-x-4">
+          {filePath && (
+            <a
+              href={`http://localhost:5000/${filePath.replace(/\\/g, '/')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-600 hover:text-purple-700 font-medium text-sm hover:underline"
+            >
+              View File
+            </a>
+          )}
+          <button className="text-purple-600 hover:text-purple-700 font-medium text-sm hover:underline">
+            Take Quiz →
+          </button>
+        </div>
       </div>
     </div>
   );

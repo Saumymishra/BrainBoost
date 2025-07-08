@@ -12,11 +12,34 @@ const DashboardPage = () => {
   const token = localStorage.getItem('authToken');
   const userEmail = localStorage.getItem('userEmail');
 
+  // Redirect to login if no token or email
   useEffect(() => {
     if (!token || !userEmail) {
       navigate('/login');
     }
   }, [token, userEmail, navigate]);
+
+  // Fetch notes on mount or when token/userEmail changes
+  useEffect(() => {
+    if (token && userEmail) {
+      fetch(`http://localhost:5000/api/upload?userId=${encodeURIComponent(userEmail)}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error('Failed to fetch notes');
+          return res.json();
+        })
+        .then((data) => {
+          if (data.notes) setUploadedNotes(data.notes);
+        })
+        .catch((err) => {
+          console.error('Error fetching notes:', err);
+          setMessage('❌ Failed to load notes');
+        });
+    }
+  }, [token, userEmail]);
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -30,6 +53,7 @@ const DashboardPage = () => {
     }
 
     const formData = new FormData();
+    console.log(userEmail)
     formData.append('file', selectedFile);
     formData.append('userId', userEmail);
 
@@ -45,14 +69,18 @@ const DashboardPage = () => {
       const data = await res.json();
 
       if (res.ok) {
-        setUploadedNotes((prev) => [...prev, data.file]);
+        setUploadedNotes((prev) => [data.note, ...prev]); // show newest first
         setMessage('✅ Upload successful!');
         setSelectedFile(null);
+
+        // Clear message after 3 seconds
+        setTimeout(() => setMessage(''), 3000);
       } else {
         setMessage(`❌ Upload failed: ${data.message}`);
       }
     } catch (err) {
       setMessage('❌ Error uploading file');
+      console.error(err);
     }
   };
 
@@ -76,6 +104,7 @@ const DashboardPage = () => {
               type="file"
               onChange={handleFileChange}
               className="p-2 border rounded w-full sm:w-auto"
+              accept=".pdf,.txt,.docx"
             />
             <button
               type="submit"
@@ -94,11 +123,12 @@ const DashboardPage = () => {
             {uploadedNotes.length > 0 ? (
               uploadedNotes.map((note, index) => (
                 <NoteCard
-                  key={index}
-                  title={note.fileName}
-                  subject={note.fileType}
-                  date={new Date(note.uploadDate).toLocaleDateString()}
+                  key={note._id || index}
+                  title={note.originalname}
+                  subject={note.mimetype}
+                  date={note.uploadedAt ? new Date(note.uploadedAt).toLocaleDateString() : ''}
                   questions={0} // Placeholder
+                  filePath={note.path}
                 />
               ))
             ) : (
