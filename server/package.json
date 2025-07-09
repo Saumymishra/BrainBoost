@@ -18,9 +18,12 @@
     "dotenv": "^17.0.0",
     "epress": "^0.0.1-security",
     "express": "^5.1.0",
+    "fs-extra": "^11.3.0",
     "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.9.1",
     "mongoose": "^8.16.1",
     "multer": "^2.0.1",
-    "pdf-parse": "^1.1.1"
+    "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^2.16.105"
   }
 }

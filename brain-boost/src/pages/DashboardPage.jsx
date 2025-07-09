@@ -12,14 +12,14 @@ const DashboardPage = () => {
   const token = localStorage.getItem('authToken');
   const userEmail = localStorage.getItem('userEmail');
 
-  // Redirect to login if no token or email
+  // Redirect if no auth
   useEffect(() => {
     if (!token || !userEmail) {
       navigate('/login');
     }
   }, [token, userEmail, navigate]);
 
-  // Fetch notes on mount or when token/userEmail changes
+  // Fetch uploaded notes
   useEffect(() => {
     if (token && userEmail) {
       fetch(`http://localhost:5000/api/upload?userId=${encodeURIComponent(userEmail)}`, {
@@ -53,7 +53,6 @@ const DashboardPage = () => {
     }
 
     const formData = new FormData();
-    console.log(userEmail)
     formData.append('file', selectedFile);
     formData.append('userId', userEmail);
 
@@ -69,18 +68,16 @@ const DashboardPage = () => {
       const data = await res.json();
 
       if (res.ok) {
-        setUploadedNotes((prev) => [data.note, ...prev]); // show newest first
+        setUploadedNotes((prev) => [data.note, ...prev]);
         setMessage('✅ Upload successful!');
         setSelectedFile(null);
-
-        // Clear message after 3 seconds
         setTimeout(() => setMessage(''), 3000);
       } else {
         setMessage(`❌ Upload failed: ${data.message}`);
       }
     } catch (err) {
-      setMessage('❌ Error uploading file');
       console.error(err);
+      setMessage('❌ Error uploading file');
     }
   };
 
@@ -89,17 +86,12 @@ const DashboardPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Your Notes</h1>
-          <p className="text-gray-600">
-            Upload new notes or review your existing quiz materials
-          </p>
+          <p className="text-gray-600">Upload new notes or review your existing quiz materials</p>
         </div>
 
-        {/* Upload Section */}
+        {/* Upload */}
         <div className="mb-8 p-6 border rounded-lg bg-white shadow-sm">
-          <form
-            onSubmit={handleUpload}
-            className="flex flex-col sm:flex-row gap-4 items-center"
-          >
+          <form onSubmit={handleUpload} className="flex flex-col sm:flex-row gap-4 items-center">
             <input
               type="file"
               onChange={handleFileChange}
@@ -121,15 +113,8 @@ const DashboardPage = () => {
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Notes</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {uploadedNotes.length > 0 ? (
-              uploadedNotes.map((note, index) => (
-                <NoteCard
-                  key={note._id || index}
-                  title={note.originalname}
-                  subject={note.mimetype}
-                  date={note.uploadedAt ? new Date(note.uploadedAt).toLocaleDateString() : ''}
-                  questions={0} // Placeholder
-                  filePath={note.path}
-                />
+              uploadedNotes.map((note) => (
+                <NoteCard key={note._id} note={note} />
               ))
             ) : (
               <div className="text-center py-12 col-span-full">
