@@ -14,7 +14,8 @@ const noteSchema = new mongoose.Schema({
   size: Number,
   uploadedAt: { type: Date, default: Date.now },
   userId: String,
-  mcqs: [mcqSchema], // ✅ only one clean definition
+  extractedText: String, // store extracted text for later quiz generation
+  mcqs: [mcqSchema],
 });
 
 const Note = mongoose.model('Note', noteSchema);

@@ -6,9 +6,12 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Don't render navbar on home page
+  if (location.pathname === '/') return null;
+
   const handleLogout = () => {
-    localStorage.removeItem('authToken'); // Clear auth token
-    navigate('/login'); // Navigate to login page
+    localStorage.removeItem('authToken');
+    navigate('/login');
   };
 
   const handleUploadClick = () => {
@@ -17,6 +20,10 @@ const Navbar = () => {
 
   const handleProfileClick = () => {
     navigate('/profile');
+  };
+
+  const handleTrackProgressClick = () => {
+    navigate('/track-progress');
   };
 
   return (
@@ -28,7 +35,9 @@ const Navbar = () => {
             onClick={() => navigate('/')}
             tabIndex={0}
             role="button"
-            onKeyDown={e => { if (e.key === 'Enter') navigate('/'); }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') navigate('/');
+            }}
           >
             <Brain className="h-8 w-8 text-purple-600" />
             <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
@@ -36,29 +45,28 @@ const Navbar = () => {
             </span>
           </div>
 
-          {location.pathname === '/dashboard' && (
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={handleUploadClick}
-                className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-              >
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:block">Upload Notes</span>
-              </button>
-              <div className="flex items-center space-x-2">
-                <User
-                  className="h-8 w-8 text-gray-600 p-1 border rounded-full hover:bg-gray-100 cursor-pointer"
-                  onClick={handleProfileClick} // <-- Navigate to profile page on click
-                  title="Your Profile"
-                />
-                <LogOut
-                  className="h-8 w-8 text-gray-600 p-1 hover:bg-gray-100 rounded cursor-pointer"
-                  onClick={handleLogout}
-                  title="Logout"
-                />
-              </div>
+          <div className="flex items-center space-x-4">
+            {/* Track Progress button visible on all pages except home */}
+            <button
+              onClick={handleTrackProgressClick}
+              className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              <span className="hidden sm:block">Track Progress</span>
+            </button>
+
+            <div className="flex items-center space-x-2">
+              <User
+                className="h-8 w-8 text-gray-600 p-1 border rounded-full hover:bg-gray-100 cursor-pointer"
+                onClick={handleProfileClick}
+                title="Your Profile"
+              />
+              <LogOut
+                className="h-8 w-8 text-gray-600 p-1 hover:bg-gray-100 rounded cursor-pointer"
+                onClick={handleLogout}
+                title="Logout"
+              />
             </div>
-          )}
+          </div>
         </div>
       </div>
     </nav>

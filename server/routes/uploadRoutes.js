@@ -25,7 +25,7 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB max
 
-// POST: Upload file, extract text, generate MCQs
+// POST: Upload file and store extracted text only
 router.post('/', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
@@ -34,6 +34,9 @@ router.post('/', upload.single('file'), async (req, res) => {
     const userId = req.body.userId;
     if (!userId) return res.status(400).json({ message: 'userId is required' });
 
+    const extractedText = await extractTextFromFile(path, mimetype);
+    console.log('Extracted text:', extractedText.slice(0, 300));
+
     const note = new Note({
       filename,
       originalname,
@@ -41,34 +44,19 @@ router.post('/', upload.single('file'), async (req, res) => {
       mimetype,
       size,
       userId,
+      extractedText,
     });
 
-    // Save the file metadata
     await note.save();
 
-    // Extract text
-    const extractedText = await extractTextFromFile(path, mimetype);
-    console.log('Extracted text:', extractedText.slice(0, 300)); // Show first 300 chars
-
-    if (!extractedText || extractedText.length < 50) {
-      return res.status(400).json({ message: 'Text content too short or not extractable' });
-
-    }
-
-    // Generate MCQs
-    const mcqs = await generateMCQsFromText(extractedText);
-    note.mcqs = mcqs;
-
-    await note.save();
-
-    res.status(200).json({ message: 'File uploaded and MCQs generated', note });
+    res.status(200).json({ message: 'File uploaded successfully', note });
   } catch (err) {
     console.error('Upload error:', err.message);
     res.status(500).json({ message: err.message });
   }
 });
 
-// GET: Fetch notes
+// GET: Fetch all notes by userId
 router.get('/', async (req, res) => {
   const userId = req.query.userId;
   if (!userId) return res.status(400).json({ message: 'userId is required' });
@@ -77,6 +65,38 @@ router.get('/', async (req, res) => {
     const notes = await Note.find({ userId }).sort({ uploadedAt: -1 });
     res.status(200).json({ notes });
   } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET: Fetch a single note by its ID
+router.get('/:id', async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note) return res.status(404).json({ message: 'Note not found' });
+    res.status(200).json({ note });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// POST: Generate MCQs from extracted text for a note
+router.post('/:id/generate', async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note) return res.status(404).json({ message: 'Note not found' });
+
+    if (!note.extractedText || note.extractedText.length < 50) {
+      return res.status(400).json({ message: 'Insufficient text to generate MCQs' });
+    }
+
+    const mcqs = await generateMCQsFromText(note.extractedText);
+    note.mcqs = mcqs;
+    await note.save();
+
+    res.status(200).json({ message: 'MCQs generated successfully', mcqs });
+  } catch (err) {
+    console.error('MCQ generation error:', err.message);
     res.status(500).json({ message: err.message });
   }
 });

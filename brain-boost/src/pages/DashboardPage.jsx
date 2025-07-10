@@ -2,30 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
 import NoteCard from '../components/NoteCard';
+import UploadZone from '../components/UploadZone';
 
 const DashboardPage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [message, setMessage] = useState('');
   const [uploadedNotes, setUploadedNotes] = useState([]);
+  const [showAll, setShowAll] = useState(false);
   const navigate = useNavigate();
 
   const token = localStorage.getItem('authToken');
   const userEmail = localStorage.getItem('userEmail');
 
-  // Redirect if no auth
   useEffect(() => {
     if (!token || !userEmail) {
       navigate('/login');
     }
   }, [token, userEmail, navigate]);
 
-  // Fetch uploaded notes
   useEffect(() => {
     if (token && userEmail) {
       fetch(`http://localhost:5000/api/upload?userId=${encodeURIComponent(userEmail)}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => {
           if (!res.ok) throw new Error('Failed to fetch notes');
@@ -41,10 +39,6 @@ const DashboardPage = () => {
     }
   }, [token, userEmail]);
 
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
-  };
-
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!selectedFile) {
@@ -59,14 +53,11 @@ const DashboardPage = () => {
     try {
       const res = await fetch('http://localhost:5000/api/upload', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
 
       const data = await res.json();
-
       if (res.ok) {
         setUploadedNotes((prev) => [data.note, ...prev]);
         setMessage('✅ Upload successful!');
@@ -81,6 +72,8 @@ const DashboardPage = () => {
     }
   };
 
+  const visibleNotes = showAll ? uploadedNotes : uploadedNotes.slice(0, 4);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -89,33 +82,15 @@ const DashboardPage = () => {
           <p className="text-gray-600">Upload new notes or review your existing quiz materials</p>
         </div>
 
-        {/* Upload */}
-        <div className="mb-8 p-6 border rounded-lg bg-white shadow-sm">
-          <form onSubmit={handleUpload} className="flex flex-col sm:flex-row gap-4 items-center">
-            <input
-              type="file"
-              onChange={handleFileChange}
-              className="p-2 border rounded w-full sm:w-auto"
-              accept=".pdf,.txt,.docx"
-            />
-            <button
-              type="submit"
-              className="bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700 transition"
-            >
-              Upload Note
-            </button>
-          </form>
-          {message && <p className="mt-4 text-purple-700">{message}</p>}
-        </div>
+        {/* Upload Zone */}
+        <UploadZone onFileUpload={handleUpload} />
 
         {/* Notes Grid */}
-        <div className="mb-6">
+        <div className="my-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Notes</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {uploadedNotes.length > 0 ? (
-              uploadedNotes.map((note) => (
-                <NoteCard key={note._id} note={note} />
-              ))
+            {visibleNotes.length > 0 ? (
+              visibleNotes.map((note) => <NoteCard key={note._id} note={note} />)
             ) : (
               <div className="text-center py-12 col-span-full">
                 <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -126,6 +101,18 @@ const DashboardPage = () => {
               </div>
             )}
           </div>
+
+          {/* Toggle Buttons */}
+          {uploadedNotes.length > 4 && (
+            <div className="text-right mt-4">
+              <button
+                onClick={() => setShowAll(!showAll)}
+                className="text-sm text-purple-600 hover:underline"
+              >
+                {showAll ? 'View Less ↑' : 'View All Notes →'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

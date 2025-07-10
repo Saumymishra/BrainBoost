@@ -1,12 +1,13 @@
-import React from 'react';
-import { FileText } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const NoteCard = ({ note }) => {
   const navigate = useNavigate();
 
   const handleTakeQuiz = () => {
-    navigate('/quiz', { state: { note } });
+    // Navigate immediately, no await, no API call here
+    navigate(`/quiz/${note._id}`);
   };
 
   return (
@@ -17,12 +18,16 @@ const NoteCard = ({ note }) => {
             <FileText className="h-5 w-5 text-purple-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900 text-lg">{note.originalname}</h3>
+            <h3 className="font-semibold text-gray-900 text-lg">
+              {note.originalname.length > 10
+                ? note.originalname.substring(0, 10) + "..."
+                : note.originalname}
+            </h3>
             <p className="text-sm text-gray-500">{note.mimetype}</p>
           </div>
         </div>
         <span className="text-xs text-gray-400">
-          {note.uploadedAt ? new Date(note.uploadedAt).toLocaleDateString() : ''}
+          {note.uploadedAt ? new Date(note.uploadedAt).toLocaleDateString() : ""}
         </span>
       </div>
 
@@ -33,7 +38,7 @@ const NoteCard = ({ note }) => {
         <div className="flex items-center space-x-4">
           {note.path && (
             <a
-              href={`http://localhost:5000/${note.path.replace(/\\/g, '/')}`}
+              href={`http://localhost:5000/${note.path.replace(/\\/g, "/")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-purple-600 hover:text-purple-700 font-medium text-sm hover:underline"
