@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const resultSchema = new mongoose.Schema({
-  noteId: { type: String, required: true },
+  noteId: { type: mongoose.Schema.Types.ObjectId, ref: 'Note', required: true },
   userId: { type: String, required: true },
   totalQuestions: { type: Number, required: true },
   correctAnswers: { type: Number, required: true },

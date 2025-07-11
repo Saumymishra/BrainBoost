@@ -8,20 +8,18 @@ router.post('/', async (req, res) => {
   try {
     const { noteId, totalQuestions, correctAnswers, answers, userId, timeSpent } = req.body;
 
-    // Validate required fields more strictly
     if (!noteId || !userId) {
       return res.status(400).json({ message: 'noteId and userId are required' });
     }
     if (
-      typeof totalQuestions !== 'number' || 
-      typeof correctAnswers !== 'number' || 
-      typeof answers !== 'object' || 
+      typeof totalQuestions !== 'number' ||
+      typeof correctAnswers !== 'number' ||
+      typeof answers !== 'object' ||
       answers === null
     ) {
       return res.status(400).json({ message: 'totalQuestions, correctAnswers, and answers are required and must be valid' });
     }
 
-    // Calculate accuracy, protect against division by zero
     const accuracy = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
 
     const result = new Result({
@@ -44,11 +42,20 @@ router.post('/', async (req, res) => {
   }
 });
 
-// GET /api/results/user/:userId - Get all quiz attempts of a user
+// GET /api/results/user/:userId - Get all quiz attempts of a user, with note details populated
 router.get('/user/:userId', async (req, res) => {
   try {
-    const { userId } = req.params;
-    const results = await Result.find({ userId }).sort({ attemptedAt: -1 });
+    let { userId } = req.params;
+    userId = userId.trim();  // Trim whitespace/newlines
+
+    // console.log('Fetching results for user:', userId);
+
+    const results = await Result.find({ userId })
+      .populate('noteId', 'originalname')
+      .sort({ attemptedAt: -1 });
+
+    // console.log('Number of results found:', results.length);
+
     res.json({ results });
   } catch (err) {
     console.error('Fetch results error:', err);
@@ -56,11 +63,13 @@ router.get('/user/:userId', async (req, res) => {
   }
 });
 
-// GET /api/results/user/:userId/summary - Get analytics summary for user
+// GET /api/results/user/:userId/summary - Get analytics summary for user with note populated
 router.get('/user/:userId/summary', async (req, res) => {
   try {
-    const { userId } = req.params;
-    const results = await Result.find({ userId });
+    let { userId } = req.params;
+    userId = userId.trim();  // Trim whitespace/newlines
+
+    const results = await Result.find({ userId }).populate('noteId', 'originalname');
 
     if (results.length === 0) {
       return res.json({

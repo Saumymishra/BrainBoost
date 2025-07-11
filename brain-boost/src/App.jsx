@@ -3,10 +3,11 @@ import { Routes, Route, useLocation, useParams } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
-import ProfilePage from './pages/ProfilePage';
+import ProfilePopup from './pages/ProfilePopup';
 import Navbar from './components/Navbar';
 import QuizPage from './pages/QuizPage';
 import TrackProgress from './pages/TrackProgress';
+import QuizHistory from './pages/QuizHistory';
 
 const App = () => {
   const location = useLocation();
@@ -22,7 +23,8 @@ const App = () => {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/track-progress" element={<TrackProgress />} />
         <Route path="/quiz/:noteId" element={<QuizPageWrapper />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile" element={<ProfilePopup />} />
+        <Route path="/quiz-history" element={<QuizHistory />} />
       </Routes>
     </div>
   );
