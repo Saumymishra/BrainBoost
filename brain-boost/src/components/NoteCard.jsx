@@ -23,11 +23,17 @@ const NoteCard = ({ note }) => {
                 ? note.originalname.substring(0, 10) + "..."
                 : note.originalname}
             </h3>
-            <p className="text-sm text-gray-500">{note.mimetype}</p>
+            <p className="text-sm text-gray-500">
+              {note.mimetype.length > 10
+                ? note.mimetype.substring(0, 10) + "..."
+                : note.mimetype}
+            </p>
           </div>
         </div>
         <span className="text-xs text-gray-400">
-          {note.uploadedAt ? new Date(note.uploadedAt).toLocaleDateString() : ""}
+          {note.uploadedAt
+            ? new Date(note.uploadedAt).toLocaleDateString()
+            : ""}
         </span>
       </div>
 
@@ -38,7 +44,10 @@ const NoteCard = ({ note }) => {
         <div className="flex items-center space-x-4">
           {note.path && (
             <a
-              href={`http://localhost:5000/${note.path.replace(/\\/g, "/")}`}
+              href={`https://brainboost-iu1v.onrender.com/${note.path.replace(
+                /\\/g,
+                "/"
+              )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-purple-600 hover:text-purple-700 font-medium text-sm hover:underline"

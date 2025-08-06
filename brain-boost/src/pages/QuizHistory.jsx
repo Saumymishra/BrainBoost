@@ -16,7 +16,7 @@ const QuizHistory = ({ userId, token }) => {
         setError('');
 
         const encodedUserId = encodeURIComponent(userId.trim()); // Clean up email/userId
-        const res = await fetch(`http://localhost:5000/api/results/user/${encodedUserId}`, {
+        const res = await fetch(`https://brainboost-iu1v.onrender.com/api/results/user/${encodedUserId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

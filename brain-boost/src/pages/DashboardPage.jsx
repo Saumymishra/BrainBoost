@@ -25,7 +25,7 @@ const DashboardPage = () => {
     if (token && userEmail) {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/upload?userId=${encodeURIComponent(userEmail)}`,
+          `https://brainboost-iu1v.onrender.com/api/upload?userId=${encodeURIComponent(userEmail)}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

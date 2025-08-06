@@ -10,7 +10,7 @@ const ProfilePopup = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/auth/profile", {
+        const res = await fetch("https://brainboost-iu1v.onrender.com/api/auth/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -33,7 +33,7 @@ const ProfilePopup = () => {
     formData.append("avatar", file);
 
     try {
-      const res = await fetch("http://localhost:5000/api/avatar/upload", {
+      const res = await fetch("https://brainboost-iu1v.onrender.com/api/avatar/upload", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -50,7 +50,7 @@ const ProfilePopup = () => {
   };
 
   const avatarUrl = user?.avatar
-    ? `http://localhost:5000/${user.avatar}`
+    ? `https://brainboost-iu1v.onrender.com/${user.avatar}`
     : "https://ui-avatars.com/api/?name=U";
 
   return (

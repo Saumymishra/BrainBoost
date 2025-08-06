@@ -61,7 +61,7 @@ const UserAnalytics = ({ userId, token }) => {
       setError("");
       try {
         const resHistory = await fetch(
-          `http://localhost:5000/api/results/user/${userId}`,
+          `https://brainboost-iu1v.onrender.com/api/results/user/${userId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -71,7 +71,7 @@ const UserAnalytics = ({ userId, token }) => {
         setHistory(dataHistory.results);
 
         const resSummary = await fetch(
-          `http://localhost:5000/api/results/user/${userId}/summary`,
+          `https://brainboost-iu1v.onrender.com/api/results/user/${userId}/summary`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

@@ -35,7 +35,7 @@ const QuizPage = ({ token }) => {
         setAnswers({});
         startTimeRef.current = null;
 
-        const res = await fetch(`http://localhost:5000/api/upload/${noteId}`, {
+        const res = await fetch(`https://brainboost-iu1v.onrender.com/api/upload/${noteId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -44,7 +44,7 @@ const QuizPage = ({ token }) => {
         if (!data.note.mcqs || data.note.mcqs.length === 0) {
           setGenerating(true);
 
-          const genRes = await fetch(`http://localhost:5000/api/upload/${noteId}/generate`, {
+          const genRes = await fetch(`https://brainboost-iu1v.onrender.com/api/upload/${noteId}/generate`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -112,7 +112,7 @@ const QuizPage = ({ token }) => {
         timeSpent: timeSpentSeconds,
       };
 
-      const res = await fetch(`http://localhost:5000/api/results`, {
+      const res = await fetch(`https://brainboost-iu1v.onrender.com/api/results`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

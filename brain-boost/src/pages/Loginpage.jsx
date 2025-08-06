@@ -11,8 +11,8 @@ const LoginPage = () => {
   const handleSubmit = async () => {
     setError('');
     const url = isLogin
-      ? 'http://localhost:5000/api/auth/login'
-      : 'http://localhost:5000/api/auth/signup';
+      ? 'https://brainboost-iu1v.onrender.com/api/auth/login'
+      : 'https://brainboost-iu1v.onrender.com/api/auth/signup';
 
     try {
       const res = await fetch(url, {
