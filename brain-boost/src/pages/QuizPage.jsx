@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
+const isValidObjectId = (id) => /^[a-f\d]{24}$/i.test(id);
+
 const QuizPage = ({ token }) => {
   const { noteId } = useParams();
   const navigate = useNavigate();
@@ -19,6 +21,12 @@ const QuizPage = ({ token }) => {
 
   useEffect(() => {
     async function fetchNoteAndGenerate() {
+      if (!isValidObjectId(noteId)) {
+        setSubmitMessage('❌ Invalid note ID.');
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         setGenerating(false);
@@ -133,6 +141,15 @@ const QuizPage = ({ token }) => {
       <div className="flex flex-col justify-center items-center h-64 space-y-3">
         <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
         <p className="text-purple-600 font-medium">Loading quiz...</p>
+      </div>
+    );
+  }
+
+  if (submitMessage && submitMessage.startsWith('❌') && !isValidObjectId(noteId)) {
+    // Show invalid ID message early, no quiz load
+    return (
+      <div className="text-center mt-10 text-red-600 font-semibold">
+        {submitMessage}
       </div>
     );
   }

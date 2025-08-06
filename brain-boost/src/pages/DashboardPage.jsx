@@ -20,57 +20,32 @@ const DashboardPage = () => {
     }
   }, [token, userEmail, navigate]);
 
-  useEffect(() => {
+  // ✅ FIXED: fetchNotes now defined and reused
+  const fetchNotes = async () => {
     if (token && userEmail) {
-      fetch(`http://localhost:5000/api/upload?userId=${encodeURIComponent(userEmail)}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error('Failed to fetch notes');
-          return res.json();
-        })
-        .then((data) => {
-          if (data.notes) setUploadedNotes(data.notes);
-        })
-        .catch((err) => {
-          console.error('Error fetching notes:', err);
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/upload?userId=${encodeURIComponent(userEmail)}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const data = await res.json();
+        if (res.ok && data.notes) {
+          setUploadedNotes(data.notes);
+        } else {
           setMessage('❌ Failed to load notes');
-        });
-    }
-  }, [token, userEmail]);
-
-  const handleUpload = async (e) => {
-    e.preventDefault();
-    if (!selectedFile) {
-      setMessage('Please select a file');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-    formData.append('userId', userEmail);
-
-    try {
-      const res = await fetch('http://localhost:5000/api/upload', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        setUploadedNotes((prev) => [data.note, ...prev]);
-        setMessage('✅ Upload successful!');
-        setSelectedFile(null);
-        setTimeout(() => setMessage(''), 3000);
-      } else {
-        setMessage(`❌ Upload failed: ${data.message}`);
+        }
+      } catch (err) {
+        console.error('Error fetching notes:', err);
+        setMessage('❌ Failed to load notes');
       }
-    } catch (err) {
-      console.error(err);
-      setMessage('❌ Error uploading file');
     }
   };
+
+  useEffect(() => {
+    fetchNotes();
+  }, [token, userEmail]);
 
   const visibleNotes = showAll ? uploadedNotes : uploadedNotes.slice(0, 4);
 
@@ -82,8 +57,8 @@ const DashboardPage = () => {
           <p className="text-gray-600">Upload new notes or review your existing quiz materials</p>
         </div>
 
-        {/* Upload Zone */}
-        <UploadZone onFileUpload={handleUpload} />
+        {/* ✅ Upload Zone triggers fetchNotes on success */}
+        <UploadZone onUploadSuccess={fetchNotes} />
 
         {/* Notes Grid */}
         <div className="my-6">

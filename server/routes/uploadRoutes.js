@@ -35,7 +35,7 @@ router.post('/', upload.single('file'), async (req, res) => {
     if (!userId) return res.status(400).json({ message: 'userId is required' });
 
     const extractedText = await extractTextFromFile(path, mimetype);
-    console.log('Extracted text:', extractedText.slice(0, 300));
+    // console.log('Extracted text:', extractedText.slice(0, 300));
 
     const note = new Note({
       filename,
@@ -96,8 +96,8 @@ router.post('/:id/generate', async (req, res) => {
 
     res.status(200).json({ message: 'MCQs generated successfully', mcqs });
   } catch (err) {
-    console.error('MCQ generation error:', err.message);
-    res.status(500).json({ message: err.message });
+    // console.error('Error generating MCQs:', err.message);
+    // res.status(500).json({ message: err.message });
   }
 });
 

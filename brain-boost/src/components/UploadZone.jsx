@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { UploadCloud, Loader2 } from 'lucide-react';
 
-const UploadZone = () => {
+const UploadZone = ({ onUploadSuccess }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef();
@@ -21,6 +21,12 @@ const UploadZone = () => {
       const data = await res.json();
       if (res.ok) {
         alert('✅ Upload successful');
+
+        // 🔁 Trigger refresh of notes if parent passed a callback
+        if (onUploadSuccess && typeof onUploadSuccess === 'function') {
+          onUploadSuccess();
+        }
+
       } else {
         alert(`❌ Upload failed: ${data.message}`);
       }
